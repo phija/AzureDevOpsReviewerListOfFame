@@ -7,7 +7,7 @@
 // @grant       none
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
-// @version     0.1.0
+// @version     0.2.0-alpha.1
 // ==/UserScript==
 
 //Avoid conflicts
@@ -18,7 +18,7 @@ $(document).ready(function()
 });
 
 function createButton() {
-    var header = $('div.navigation-section.flex-column.flex-grow.scroll-hidden.v-scroll-auto.custom-scrollbar').map(function() {
+    $('div.navigation-section.flex-column.flex-grow.scroll-hidden.v-scroll-auto.custom-scrollbar').map(function() {
         if ($(this).attr('role') == "menubar") {
             $(this).append('<div id="countButtonDiv"><a id="countButton" aria-setsize="1" aria-posinset="1" aria-roledescription="button" class="bolt-header-command-item-button bolt-button bolt-link-button enabled primary bolt-focus-treatment" data-focuszone="focuszone-3" data-is-focusable="true" ' +
                            'role="menuitem" tabindex="0"><span class="bolt-button-text body-m">Count Reviewers</span></a></div>');
@@ -85,15 +85,25 @@ function countReviewers() {
             if (takeRow) {
                 $(this).find('img.size24').map(function() {
                     var name = $(this).attr('alt');
-                    if (names[name] == undefined)
+
+                    // find parent that also contains the checkmark symbol
+                    var parent = $(this).parents('div.relative').first();
+                    //console.log("parent:", parent);
+                    var approved = parent.find('span.approved').length;
+                    //console.log("approved", name, approved);
+
+                    if (approved > 0)
                     {
-                        images[name] = $(this).outerHTML();
-                        // console.log(images[name]);
-                        names[name] = 0;
+                        if (names[name] == undefined)
+                        {
+                            images[name] = $(this).outerHTML();
+                            // console.log(images[name]);
+                            names[name] = 0;
+                        }
+                        names[name] += 1;
+                        // console.log(name, names[name]);
+                        totalCountReviews++;
                     }
-                    names[name] += 1;
-                    // console.log(name, names[name]);
-                    totalCountReviews++;
                 });
                 rows++;
             }
